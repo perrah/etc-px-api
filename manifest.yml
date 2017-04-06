@@ -1,12 +1,12 @@
 ---
 applications:
-  - name: pi-mobiles
-    host: pi-mobiles
+  - name: etc-px-api
     buildpack: https://github.com/cloudfoundry/buildpack-nodejs.git
     memory: 64M
     command: node app.js
     env:
-      UAA_URL: "https://makerspace-uaa.predix-uaa.run.aws-usw02-pr.ice.predix.io"
+      UAA_URL: "https://a8a2ffc4-b04e-4ec1-bfed-7a51dd408725.predix-uaa.run.aws-usw02-pr.ice.predix.io"
       TIMESERIES_INGEST_URL: "wss://gateway-predix-data-services.run.aws-usw02-pr.ice.predix.io/v1/stream/messages"
       TIMESERIES_QUERY_URL: "https://time-series-store-predix.run.aws-usw02-pr.ice.predix.io/v1/datapoints"
-      PREDIX_ZONE_ID: "9cf20ad9-3367-48fb-8278-12bfe7b723a1"
+      PREDIX_ZONE_ID: "3d43d6a4-2512-4caf-8fbe-d047c2c7a667"
+      APP_URL: "https://etc-px-api.run.aws-usw02-pr.ice.predix.io/"

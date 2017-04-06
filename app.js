@@ -1,6 +1,7 @@
 'use strict';
 
 var express = require('express');
+var cors = require('cors');
 var bodyParser = require('body-parser');
 var https = require('https');
 var url = require('url');
@@ -16,6 +17,7 @@ var wsUrl = process.env.TIMESERIES_INGEST_URL || '';
 var wsQueryUrl = process.env.TIMESERIES_QUERY_URL || '';
 var predixZoneId = process.env.PREDIX_ZONE_ID || '';
 var timeseriesUrl = process.env.TIMESERIES_URL || '';
+var appUrl = process.env.APP_URL || '';
 
 var clients = {};
 var timeseriesConnections = {};
@@ -35,6 +37,7 @@ if (corporateProxyServer) {
 }
 
 var app = express();
+app.use(cors());
 
 app.get('/', function(req, res) {
   res.status(200).send({"success": "You successfully hit the endpoint!"});
@@ -43,7 +46,7 @@ app.get('/', function(req, res) {
 /**
  * Send HTTPS request to retrieve client token
  * @name requestToken
- * 
+ *
  * @param {String} credentials
  * @param {String} id
  */
@@ -57,7 +60,7 @@ var requestToken = function requestToken(credentials, id) {
     };
     options.agent = corporateProxyAgent;
     options.method = 'POST';
-    
+
     var request = https.request(options, function(res) {
       var body = '';
       res.on('data', function (chunk) {
@@ -99,7 +102,7 @@ app.post('/dataPoints', jsonParser, function(req, res) {
 /**
 * Query data from Time Series
 * @name queryTimeSeries
-* 
+*
 * @param {Object} token
 * @return {Object} Promise
 */
@@ -144,7 +147,7 @@ app.post('/queryDataPoints', jsonParser, function(req, res) {
 /**
  * Request token or retrieve cached token
  * @name getToken
- * 
+ *
  * @param {String} clientId
  * @param {String} base64Credentials
  * @return {Object} Promise
@@ -171,7 +174,7 @@ function getToken(clientId, base64Credentials) {
 /**
  * Connect to Timeseries service
  * @name getConnection
- * 
+ *
  * @param {String} zoneId
  * @param {String} token
  */
@@ -179,7 +182,7 @@ function getConnection(token) {
   return new Promise(function(resolve, reject) {
     var bearerToken = 'Bearer ' + token.accessToken;
     console.log("BEARER TOKEN: " + bearerToken);
-    var headers = {'Authorization': bearerToken, 'Predix-Zone-Id': predixZoneId, 'Origin':'https://pi-mobiles.run.aws-usw02-pr.ice.predix.io'};
+    var headers = {'Authorization': bearerToken, 'Predix-Zone-Id': predixZoneId, 'Origin':appUrl};
     console.log("PREDIX-ZONE-ID: " + predixZoneId);
     console.log("WS_URL: " + wsUrl);
     var socket = new WebSocket(wsUrl, {headers: headers});
@@ -193,7 +196,7 @@ function getConnection(token) {
 /**
  * Send data to Timeseries service
  * @name sendData
- * 
+ *
  * @param {Object} connection
  * @param {Object} data
  */
@@ -238,13 +241,7 @@ module.exports = {
   close: function close(cb){
     if(server) server.close(cb);
     console.log("Test app server closed...");
-  },
-
-  getToken: getToken,
-
-  getConnection: getConnection,
-
-  sendData: sendData
+  }
 
 };
 
